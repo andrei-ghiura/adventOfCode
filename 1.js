@@ -14,4 +14,4 @@ const result = content
     .map(e => replace(e.first) + replace(e.last))
     .reduce((a, e) => a + parseInt(e), 0)
 
-console.log(result)
+console.log(result) 

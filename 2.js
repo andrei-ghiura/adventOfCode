@@ -1,23 +1,36 @@
 const fs = require("fs");
 const content = fs.readFileSync("./2", "utf8");
 
-let maxCubes = { red: 0, blue: 0, green: 0 }
+let initialCubes = { red: 0, blue: 0, green: 0 }
+// Part1
+// -------------------------------------------------------------------------------------------------------------------------------------------
+// let maxCubes = { red: 12, blue: 14, green: 13 }
+// -------------------------------------------------------------------------------------------------------------------------------------------
 
-const redRegex = new RegExp(/(\d) red/, "gi");
-const blueRegex = new RegExp(/(\d) blue/,);
-const greenRegex = new RegExp(/(\d) green/,);
-const color = 'red'
-const getFromRound = (round, color) => round.match(new RegExp(`(\\d) ${color}`, "gi")?.[0].split(" ")[0] ?? 0)
+require("util").inspect.defaultOptions.depth = 3;
+const getFromRound = (round, color) => parseInt(round.match(new RegExp(`(\\d)+ ${color}`, "gi"))?.[0]?.split(" ")[0] ?? 0)
 
-console.log(new RegExp(`(\\d) ${color}`, "gi"))
-console.log(getFromRound("Game 1: 3 blue, 4 red", "red"))
+const calculatePower = (game) => game.rounds.red * game.rounds.blue * game.rounds.green
 
 const result = content
     .split('\n')
-    .map(e => e.split(';').reduce((a, e) => ({
-        red: a.red + e.match(redRegex)?.[0] ?? a.red,
-        blue: a.blue + e.match(blueRegex)?.[0] ?? a.blue,
-        green: a.green + e.match(greenRegex)?.[0] ?? a.green
-    }, maxCubes)))
+    .map((e) => ({ game: parseInt(e.split("Game ")[1].split(":")[0]), rounds: e.split(": ")[1] }))
+    .map(e => e.rounds.split(';').reduce((a, round) =>
+    ({
+        game: a.game,
+        rounds: {
 
-console.log(JSON.stringify(result))
+            red: Math.max(a.rounds.red, getFromRound(round, "red")),
+            blue: Math.max(a.rounds.blue, getFromRound(round, "blue")),
+            green: Math.max(a.rounds.green, getFromRound(round, "green"))
+        }
+    }), { game: e.game, rounds: initialCubes })
+    )
+    .reduce((a, e) => a + calculatePower(e), 0)
+
+// Part1
+// -------------------------------------------------------------------------------------------------------------------------------------------
+// .reduce((a, e) => e.rounds.red <= maxCubes.red & e.rounds.blue <= maxCubes.blue & e.rounds.green <= maxCubes.green ? a + e.game : a, 0)
+// -------------------------------------------------------------------------------------------------------------------------------------------
+
+console.log(result)
